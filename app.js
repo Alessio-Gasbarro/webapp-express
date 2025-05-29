@@ -6,6 +6,8 @@ const app = express();
 const port = process.env.SERVER_PORT || 3000;
 
 const moviesRouter = require('./routers/moviesRouter');
+
+const errorsHandler = require('./middlewares/errosHandler');
 const imagePathMiddelware = require('./middlewares/imagePath');
 
 app.use(express.static('public'));
@@ -18,6 +20,8 @@ app.get("/", (req, res) => {
 });
 
 app.use('/api/movies', moviesRouter);
+
+app.use(errorsHandler);
 
 app.listen(port, () => {
     console.log(`Server listening on port ${port}`)
