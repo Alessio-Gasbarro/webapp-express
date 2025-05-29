@@ -6,9 +6,12 @@ const app = express();
 const port = process.env.SERVER_PORT || 3000;
 
 const moviesRouter = require('./routers/moviesRouter');
+const imagePathMiddelware = require('./middlewares/imagePath');
 
 app.use(express.static('public'));
 app.use(express.json());
+
+app.use(imagePathMiddelware);
 
 app.get("/", (req, res) => {
     res.send('Movies API Server')
