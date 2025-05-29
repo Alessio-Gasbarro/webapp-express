@@ -1,9 +1,9 @@
 # webapp-express
 Esercizio
-- Creiamo un database con MySQL Workbench
-- Creiamo una nuova applicazione Express
+- Creiamo un database con MySQL Workbench DONE
+- Creiamo una nuova applicazione Express DONE
 - Colleghiamo l’app al db e verifichiamo che tutto funzioni
-- Prepariamo una rotta index per ottenere la lista dei film
+- Prepariamo una rotta index per ottenere la lista dei film DONE
 - Prepariamo una rotta show per ottenere i dettagli di un singolo film e le sue recensioni
 
 Bonus
