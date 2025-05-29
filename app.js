@@ -7,6 +7,7 @@ const port = process.env.SERVER_PORT || 3000;
 
 const moviesRouter = require('./routers/moviesRouter');
 
+const notFound = require('./middlewares/notFound');
 const errorsHandler = require('./middlewares/errosHandler');
 const imagePathMiddelware = require('./middlewares/imagePath');
 
@@ -22,6 +23,7 @@ app.get("/", (req, res) => {
 app.use('/api/movies', moviesRouter);
 
 app.use(errorsHandler);
+app.use(notFound);
 
 app.listen(port, () => {
     console.log(`Server listening on port ${port}`)
