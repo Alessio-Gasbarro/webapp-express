@@ -7,11 +7,10 @@ const index = (req, res) => {
         if (err) return res.status(500).json({ error: "Database query failed: " + err });
 
         const movies = moviesResult.map((movie) => {
-            const obj = {
+            return {
                 ...movie,
                 image: req.imagePath + movie.image
             };
-            return obj;
         });
 
         res.json(movies);
