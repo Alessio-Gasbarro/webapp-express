@@ -23,7 +23,7 @@ const show = (req, res) => {
 
     const movieSql = "SELECT * FROM movies WHERE id = ?";
     const reviewsSQL = "SELECT * FROM reviews WHERE movie_id = ?";
-    const averageSQL = "SELECT AVG(rating) AS averageRating FROM reviews WHERE movie_id = ?";
+    const averageSQL = "SELECT M.*, ROUND(AVG(R.vote)) AS averageRating FROM reviews JOIN reviews R ON R.movie_id =  WHERE movie_id = ?";
 
     connection.query(movieSql, [id], (err, moviesResult) => {
         if (err) return res.status(500).json({ error: "Database query Failed: " + err });
