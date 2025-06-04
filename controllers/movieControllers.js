@@ -1,57 +1,100 @@
-const { json } = require('express');
 const connection = require('../data/db');
 
-// INDEX
 const index = (req, res) => {
-    connection.query("SELECT * FROM movies", (err, moviesResult) => {
-        if (err) return res.status(500).json({ error: "Database query failed: " + err });
+    connection.query('SELECT * FROM movies', (err, response) => {
+        if (err) throw err;
 
-        const movies = moviesResult.map((movie) => {
-            return {
-                ...movie,
-                image: req.imagePath + movie.image
-            };
-        });
+        const movies = response.map((movie) => {
+            const obj = { ...movie, }
+            obj.image = req.imagePath + obj.image
 
-        res.json(movies);
-    });
-};
+            return obj;
+        })
 
-// SHOW
+        res.send(movies);
+    })
+}
+
 const show = (req, res) => {
-    const { id } = req.params;
+    const id = req.params.id;
 
-    const movieSql = "SELECT * FROM movies WHERE id = ?";
-    const reviewsSQL = "SELECT * FROM reviews WHERE movie_id = ?";
-    const averageSQL = "SELECT M.*, ROUND(AVG(R.vote)) AS averageRating FROM reviews JOIN reviews R ON R.movie_id =  WHERE movie_id = ?";
+    const movieSql = 'SELECT movies.*, AVG(reviews.vote) AS vote FROM movies JOIN reviews ON movies.id = reviews.movie_id WHERE movies.id = ? GROUP BY movies.id';
+    const reviewSql = 'SELECT * FROM reviews WHERE movie_id = ?';
 
-    connection.query(movieSql, [id], (err, moviesResult) => {
-        if (err) return res.status(500).json({ error: "Database query Failed: " + err });
+    connection.query(movieSql, [id], (err, response) => {
+        if (err) throw err;
 
-        if (moviesResult.length === 0 || moviesResult[0].id === null) {
-            return res.status(404).json({ error: "Not Found" });
+        if (response.length === 0 || !response) {
+            return res.status(404).send({
+                error: 'Not Found',
+                message: 'Movie not found'
+            })
         }
 
-        const movie = moviesResult[0];
+        connection.query(reviewSql, [id], (err, reviews) => {
+            if (err) throw err;
 
-        connection.query(reviewsSQL, [id], (err, reviewResult) => {
-            if (err) return res.status(500).json({ error: "Database query Failed: " + err });
+            response[0].reviews = reviews;
 
-            connection.query(averageSQL, [id], (err, avgResult) => {
-                if (err) return res.status(500).json({ error: "Database query Failed: " + err });
-
-                const averageRating = avgResult[0].averageRating;
-
-                movie.reviews = reviewResult;
-                movie.averageRating = averageRating;
-
-                res.json({ ...movie, image: req.imagePath + movie.image });
+            res.send({
+                ...response[0],
+                image: req.imagePath + response[0].image
             });
+        })
+    })
+}
+
+const store = (req, res) => {
+    const { title, director, genre, release_year, abstract, image } = req.body;
+
+    const imageName = req.file.filename;
+
+    const sql = 'INSERT INTO movies (title, director, genre, release_year, abstract, image) VALUES (?, ?, ?, ?, ?, ?)';
+
+    connection.query(sql, [title, director, genre, release_year, abstract, imageName], (err, response) => {
+        if (err) throw err;
+
+        res.status(201).send({
+            status: 'success',
+            message: 'Movie stored successfully'
         });
-    });
-};
+    })
+}
+
+const reviewStore = (req, res) => {
+    const { id } = req.params;
+    const { name, vote, text } = req.body;
+
+    const sql = 'INSERT INTO reviews (movie_id, name, vote, text) VALUES (?, ?, ?, ?)';
+
+    connection.query(sql, [id, name, vote, text], (err, response) => {
+        if (err) throw err;
+
+        res.status(201).send({
+            status: 'success',
+            message: 'Review stored successfully'
+        });
+    })
+}
+
+const update = (req, res) => {
+    res.send('This is the update page');
+}
+
+const modify = (req, res) => {
+    res.send('This is the modify page');
+}
+
+const destroy = (req, res) => {
+    res.send('This is the destroy page');
+}
 
 module.exports = {
     index,
-    show
-};
+    show,
+    store,
+    reviewStore,
+    update,
+    modify,
+    destroy
+}

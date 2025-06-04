@@ -1,8 +1,8 @@
-function errorsHandler(err, req, res, next) {
-    res.status(500)
-    res.json({
-        error: err.message,
-    });
-};
+const errorHandler = (err, req, res, next) => {
+    res.status(500).send({
+        error: 'Internal server error',
+        message: err.message
+    })
+}
 
-module.exports = errorsHandler;
+module.exports = errorHandler;
